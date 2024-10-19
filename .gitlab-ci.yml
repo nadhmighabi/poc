@@ -1,0 +1,29 @@
+# Utilisation de Java 17
+image: maven:3.8.6-openjdk-17
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - mvn clean package -DskipTests=true # Construire l'application en sautant les tests
+  artifacts:
+    paths:
+      - target/*.jar # Garder le JAR construit pour les étapes suivantes
+
+test:
+  stage: test
+  script:
+    - mvn test # Exécuter les tests unitaires
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Déploiement de l'application"
+    - docker build -t my-springboot-app . # Construire l'image Docker de l'application
+    - docker run -d -p 8080:8080 my-springboot-app # Exécuter le conteneur Docker
+  only:
+    - develop # Exécuter cette étape uniquement pour les commits sur la branche develop
